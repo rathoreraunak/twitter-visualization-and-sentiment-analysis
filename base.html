@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+{% load static %}
+<head>
+
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <!-- Custom fonts for this template-->
+        <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+        <!-- Page level plugin CSS-->
+        <link href="{% static 'vendor/datatables/dataTables.bootstrap4.css' %}" rel="stylesheet">
+        <!-- Custom styles for this template-->
+        <link href="{% static 'css/sb-admin.css' %}" rel="stylesheet" >
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+    <style media="screen" type="text/css">
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        main {
+            flex: 1 0 auto;
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('select').material_select();
+        });
+
+    </script>
+    {% block header %}{% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <title>Twitter Sentimental Analysis</title>
+</head>
+<body>
+<header>
+    <nav>
+        <div class="nav-wrapper teal lighten-2">
+            <a href="/" class="brand-logo center">Twitter Sentimental Analysis</a></div>
+    </nav>
+</header>
+<main>
+    <br>
+    {% block body %}{% endblock %}
+</main>
+<footer class="page-footer teal lighten-2" style="!important;padding-top: 0">
+    <div class="footer-copyright">
+        <div class="container">© 2018 Copyright @
+            <a class="grey-text text-lighten-4 right" href="#!">More Links</a></div>
+    </div>
+</footer>
+</body>
+</html>

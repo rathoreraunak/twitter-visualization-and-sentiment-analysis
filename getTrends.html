@@ -1,0 +1,203 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <title>
+            Current Trends
+        </title>
+        <style type="text/css">
+            html { height: 100% }
+            body { height: 100%; margin: 0; padding: 0 }
+            #map_canvas { height: 100% }
+        </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script type="text/javascript"
+                src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMJWzVKOATS1zmJ4rvLWHlHOdYOW4Vqdk&sensor=false">
+        </script>
+        <script src='{% static 'js/nprogress.js'%}'></script>
+          <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <!-- Custom fonts for this template-->
+        <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+        <!-- Page level plugin CSS-->
+        <link href="{% static 'vendor/datatables/dataTables.bootstrap4.css' %}" rel="stylesheet">
+        <!-- Custom styles for this template-->
+        <link href="{% static 'css/sb-admin.css' %}" rel="stylesheet" >
+
+
+        <link rel='stylesheet' href='{% static 'css/nprogress.css'%}'/>
+        <link rel='stylesheet' href='{% static 'css/animation.css'%}'/>
+        <script type="text/javascript">
+                    CustomMarker.prototype = new google.maps.OverlayView();
+                    function CustomMarker(opts)
+                    {
+                        this.setValues(opts);
+                    }
+                    CustomMarker.prototype.draw = function () {
+                        var self = this;
+                        var div = this.div;
+                        if (!div) {
+                            div = this.div = $('' + '<div>' + '<div class="shadow"></div>' +
+                                    '<div class="pulse"></div>' + '<div class="pin-wrap">' +
+                                    '<div class="pin"></div>' + '</div>' + '</div>' + '')[0];
+                            this.pinWrap = this.div.getElementsByClassName('pin-wrap');
+                            this.pin = this.div.getElementsByClassName('pin');
+                            this.pinShadow = this.div.getElementsByClassName('shadow');
+                            div.style.position = 'absolute';
+                            div.style.cursor = 'pointer';
+                            var panes = this.getPanes();
+                            panes.overlayImage.appendChild(div);
+                            google.maps.event.addDomListener(div, "click", function (event) {
+                                google.maps.event.trigger(self, "click", event);
+                            });
+                        }
+                        var point = this.getProjection().fromLatLngToDivPixel(this.position);
+                        if (point) {
+                            div.style.left = point.x + 'px';
+                            div.style.top = point.y + 'px';
+                        }
+                    };
+                    CustomMarker.prototype.animateDrop = function ()
+                    {
+                        dynamics.stop(this.pinWrap);
+                        dynamics.css(this.pinWrap,
+                                {'transform': 'scaleY(2) translateY(-' + $('#map').outerHeight() + 'px)', 'opacity': '1', });
+                        dynamics.animate(this.pinWrap, {translateY: 0, scaleY: 1.0, },
+                                {type: dynamics.gravity, duration: 1800, });
+                        dynamics.stop(this.pin);
+                        dynamics.css(this.pin, {'transform': 'none', });
+                        dynamics.animate(this.pin, {scaleY: 0.8},
+                                {type: dynamics.bounce, duration: 1800, bounciness: 600, })
+                        dynamics.stop(this.pinShadow);
+                        dynamics.css(this.pinShadow, {'transform': 'scale(0,0)', });
+                        dynamics.animate(this.pinShadow, {scale: 1, }, {type: dynamics.gravity, duration: 1800, });
+                    }
+                    CustomMarker.prototype.animateBounce = function ()
+                    {
+                        dynamics.stop(this.pinWrap);
+                        dynamics.css(this.pinWrap,
+                                {'transform': 'none', });
+                        dynamics.animate(this.pinWrap, {translateY: -30}, {type: dynamics.forceWithGravity, bounciness: 0, duration: 500, delay: 150, });
+                        dynamics.stop(this.pin);
+                        dynamics.css(this.pin, {'transform': 'none', });
+                        dynamics.animate(this.pin, {scaleY: 0.8}, {type: dynamics.bounce, duration: 800, bounciness: 0, });
+                        dynamics.animate(this.pin, {scaleY: 0.8}, {type: dynamics.bounce, duration: 800, bounciness: 600, delay: 650, });
+                        dynamics.stop(this.pinShadow);
+                        dynamics.css(this.pinShadow, {'transform': 'none', });
+                        dynamics.animate(this.pinShadow, {scale: 0.6, }, {type: dynamics.forceWithGravity, bounciness: 0, duration: 500, delay: 150, });
+                    }
+                    $(document).ready(function () {
+
+
+
+                  {% for day in request.session.lstWoeid %}
+
+
+
+
+                        $("#testbutton").click(function () {
+
+                            $.ajax({
+                                beforeSend: function (xhr) {
+                                    NProgress.start();
+                                },
+                                url: 'https://api.flickr.com/services/rest/?method=flickr.places.resolvePlaceId&api_key=5e4a84977b64665f2ba3c10fd67bffc7&place_id={{ day.woeid }}&per_page=10&format=json&nojsoncallback=1',
+                                success: function (data) {
+
+                                    var JSONObject = data;
+                                    console.log(data);
+                                    // var myLatLng = {lat: JSONObject.location.latitude, lng: JSONObject.location.longitude};
+                                    var myLatlng = new google.maps.LatLng(parseFloat(JSONObject.location.latitude), parseFloat(JSONObject.location.longitude));
+                                    console.log(myLatlng);
+                                    console.log(JSONObject.location.county._content);
+                                    var marker = new google.maps.Marker({
+                                        position: myLatlng,
+                                        map: map,
+                                        title: JSONObject.location.county._content
+                                    });
+                                   // marker.setMap(map);
+
+
+//                                    var marker = new CustomMarker({position: myLatlng, map: map, title: JSONObject.location.county._content});
+//                                    marker.animateBounce();
+//      marker.title=JSONObject.location.county._content;
+//                                    google.maps.event.addListener(marker, 'click', function (e) {
+//
+//                                    });
+                                    marker.setAnimation(google.maps.Animation.DROP);
+                                   // marker.setMap(map);
+                                   //
+                                   marker.addListener('click', function () {
+                                        window.open('{% url 'getCurrentTrends' day.woeid %}', '_blank');
+
+                                 });
+                                    NProgress.done();
+                                },
+                                error: function () {
+                                    NProgress.done();
+                                    //alert('error');
+                                }
+
+                            });
+                        });
+            {% endfor %}
+                    });
+//**********************google maps stuff
+                    var map;
+                    function initialize() {
+                        var myOptions = {
+                            center: new google.maps.LatLng(28.77, 77.66),
+                            zoom: 5,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        };
+                        map = new google.maps.Map(document.getElementById("map_canvas"),
+                                myOptions);
+//if query string != null
+                        var woeid = getQuerystring('woeid');
+                        if (woeid != "default") {
+// document.getElementById('woeid').value = woeid;
+// addMarker();
+                        }
+                    }
+
+
+                    google.maps.event.addDomListener(window, 'load', initialize);
+//************************query string
+                    function getQuerystring(key, default_) {
+                        if (default_ == null)
+                            default_ = "default";
+                        key = key.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                        var regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
+                        var qs = regex.exec(window.location.href);
+                        if (qs == null)
+                            return default_;
+                        else
+                            return qs[1];
+                    }
+
+        </script>
+
+    </head>
+
+    <body class="fixed-nav sticky-footer bg-dark">
+     <center>
+
+
+        <h1 style="color:white ">World Twitter Trends</h1>
+
+    </center>
+   <div id="query_bar" style="width:100%; height:10%; ">
+            <center>
+                <input type="button" id="testbutton" value="Click Here To Get Trends"  />
+                <div id="errorMsg" style="color:red">
+                </div>
+            </center>
+        </div>
+    <div id="map_canvas" style="width:100%; height:80%; float: left"></div>
+            <div id="map_trends" style="width:20%; height:90%; float: right"></div>
+
+
+</body>
+
+</html>
